@@ -51,7 +51,9 @@ def _coerce_result(obj: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-async def generate_analysis_only(model: str, text: str, timeout_s: float = 45.0) -> Dict[str, Any]:
+async def generate_analysis_only(
+    model: str, text: str, timeout_s: float = 45.0
+) -> Dict[str, Any]:
     prompt = (
         "Return ONLY JSON with a single key 'analysis' whose value is an object that explains the sentiment.\n"
         "Structure the 'analysis' object with keys: 'parts_of_speech' (array of {word, tag}), "
@@ -243,8 +245,10 @@ async def generate_json(
             try:
                 payload = dict(base_payload)
                 if attempt > 0:
-                    shrink = 0.5 ** attempt
-                    payload["options"]["num_predict"] = max(256, int(num_predict * shrink))
+                    shrink = 0.5**attempt
+                    payload["options"]["num_predict"] = max(
+                        256, int(num_predict * shrink)
+                    )
                 r = await client.post(f"{OLLAMA_HOST}/api/generate", json=payload)
                 r.raise_for_status()
                 data = r.json()
@@ -271,14 +275,18 @@ async def generate_json(
             attempt += 1
             await asyncio.sleep(0.5 * attempt)
 
-    return _coerce_result({
-        "label": "neutral",
-        "confidence": 0.5,
-        "scores": {"positive": 0.25, "negative": 0.25, "neutral": 0.5},
-        "translation": None,
-        "analysis": {},
-    }), last_raw
-
+    return (
+        _coerce_result(
+            {
+                "label": "neutral",
+                "confidence": 0.5,
+                "scores": {"positive": 0.25, "negative": 0.25, "neutral": 0.5},
+                "translation": None,
+                "analysis": {},
+            }
+        ),
+        last_raw,
+    )
 
 
 async def translate_en(model: str, text: str) -> Optional[str]:
@@ -374,7 +382,9 @@ async def generate_json_with_analysis(
     if not parsed.get("analysis"):
         try:
             text_only = prompt.split("Text:", 1)[-1].strip()
-            add = await generate_analysis_only(model, text_only, timeout_s=min(45.0, timeout_s))
+            add = await generate_analysis_only(
+                model, text_only, timeout_s=min(45.0, timeout_s)
+            )
             if add.get("analysis"):
                 parsed["analysis"] = add["analysis"]
         except Exception:

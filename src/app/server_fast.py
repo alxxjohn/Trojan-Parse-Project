@@ -20,9 +20,9 @@ _VALID_LABELS = {"positive", "negative", "neutral"}
 _VALID = {"positive", "negative", "neutral"}
 
 app = FastAPI(
-        title="Trojan Parse FastAPI Server",
-        version="1.0.0",
-        description="Unified chat and sentiment analysis endpoints",
+    title="Trojan Parse FastAPI Server",
+    version="1.0.0",
+    description="Unified chat and sentiment analysis endpoints",
 )
 
 app.add_middleware(
@@ -198,8 +198,12 @@ async def _analyze_with_model(
     confidence = float(parsed.get("confidence") or 0.5)
     scores = parsed.get("scores") or {}
     scores = {
-        "positive": float(scores.get("positive") or (1.0 if label == "positive" else 0.0)),
-        "negative": float(scores.get("negative") or (1.0 if label == "negative" else 0.0)),
+        "positive": float(
+            scores.get("positive") or (1.0 if label == "positive" else 0.0)
+        ),
+        "negative": float(
+            scores.get("negative") or (1.0 if label == "negative" else 0.0)
+        ),
         "neutral": float(scores.get("neutral") or (1.0 if label == "neutral" else 0.0)),
     }
 
@@ -224,9 +228,21 @@ async def analyze(body: AnalyzeBody):
     try:
         if engine == "model":
             model_id = resolve_model(body.model_id)
-            res = await _analyze_with_model(text, model_id, options=body.options, raw=body.raw, fmt=body.format)
+            res = await _analyze_with_model(
+                text, model_id, options=body.options, raw=body.raw, fmt=body.format
+            )
             return JSONResponse(res)
-        return JSONResponse({"engine": "builtin", "label": "neutral", "confidence": 0.5, "scores": {"positive": 0.25, "negative": 0.25, "neutral": 0.5}, "raw_model_output": "", "translation": None, "analysis": None})
+        return JSONResponse(
+            {
+                "engine": "builtin",
+                "label": "neutral",
+                "confidence": 0.5,
+                "scores": {"positive": 0.25, "negative": 0.25, "neutral": 0.5},
+                "raw_model_output": "",
+                "translation": None,
+                "analysis": None,
+            }
+        )
     except (httpx.ReadTimeout, httpx.ConnectTimeout):
         raise HTTPException(status_code=504, detail="Model backend timeout")
     except httpx.HTTPError as e:
@@ -260,10 +276,23 @@ async def analyze_upload(
     try:
         if (engine or "model").lower() == "model":
             mid = resolve_model(model_id)
-            res = await _analyze_with_model(text, mid, options=opts, raw=force_raw, fmt=fmt)
+            res = await _analyze_with_model(
+                text, mid, options=opts, raw=force_raw, fmt=fmt
+            )
             res["text"] = text
             return JSONResponse(res)
-        return JSONResponse({"engine": "builtin", "label": "neutral", "confidence": 0.5, "scores": {"positive": 0.25, "negative": 0.25, "neutral": 0.5}, "raw_model_output": "", "translation": None, "analysis": None, "text": text})
+        return JSONResponse(
+            {
+                "engine": "builtin",
+                "label": "neutral",
+                "confidence": 0.5,
+                "scores": {"positive": 0.25, "negative": 0.25, "neutral": 0.5},
+                "raw_model_output": "",
+                "translation": None,
+                "analysis": None,
+                "text": text,
+            }
+        )
     except (httpx.ReadTimeout, httpx.ConnectTimeout):
         raise HTTPException(status_code=504, detail="Model backend timeout")
     except httpx.HTTPError as e:

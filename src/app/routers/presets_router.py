@@ -7,6 +7,7 @@ router = APIRouter(prefix="/api/presets", tags=["presets"])
 
 PRESETS_PATH = Path(__file__).resolve().parent.parent / "model_presets.json"
 
+
 def _load_presets() -> List[Dict[str, Any]]:
     if PRESETS_PATH.exists():
         try:
@@ -17,13 +18,16 @@ def _load_presets() -> List[Dict[str, Any]]:
             return []
     return []
 
+
 def _save_presets(presets: List[Dict[str, Any]]) -> None:
     payload = {"presets": presets}
     PRESETS_PATH.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
+
 @router.get("/")
 async def list_presets() -> Dict[str, Any]:
     return {"presets": _load_presets()}
+
 
 @router.get("/{name}")
 async def get_preset(name: str) -> Dict[str, Any]:
@@ -33,16 +37,20 @@ async def get_preset(name: str) -> Dict[str, Any]:
             return p
     raise HTTPException(status_code=404, detail="Preset not found")
 
+
 @router.post("/")
 async def add_preset(preset: Dict[str, Any]) -> Dict[str, Any]:
     if not isinstance(preset, dict) or not preset.get("name"):
         raise HTTPException(status_code=400, detail="Preset must include a 'name'")
     items = _load_presets()
-    if any(str(p.get("name", "")).lower() == str(preset["name"]).lower() for p in items):
+    if any(
+        str(p.get("name", "")).lower() == str(preset["name"]).lower() for p in items
+    ):
         raise HTTPException(status_code=400, detail="Preset name already exists")
     items.append(preset)
     _save_presets(items)
     return {"ok": True, "presets": items}
+
 
 @router.put("/{name}")
 async def update_preset(name: str, preset: Dict[str, Any]) -> Dict[str, Any]:
@@ -58,6 +66,7 @@ async def update_preset(name: str, preset: Dict[str, Any]) -> Dict[str, Any]:
         raise HTTPException(status_code=404, detail="Preset not found")
     _save_presets(items)
     return {"ok": True, "presets": items}
+
 
 @router.delete("/{name}")
 async def delete_preset(name: str) -> Dict[str, Any]:

@@ -17,10 +17,18 @@ os.makedirs(TRAIN_DIR, exist_ok=True)
 
 
 class FeedbackItem(BaseModel):
-    model_id: str = Field(..., description="Model the user ran (e.g., latin_model:1.0.0)")
+    model_id: str = Field(
+        ..., description="Model the user ran (e.g., latin_model:1.0.0)"
+    )
     text: str = Field(..., description="Original input text")
-    got: Dict[str, Any] = Field(..., description="What the model returned (engine/label/confidence/scores/translation/analysis)")
-    want: Dict[str, Any] = Field(..., description="What the user wants instead (corrected label/translation/analysis/etc.)")
+    got: Dict[str, Any] = Field(
+        ...,
+        description="What the model returned (engine/label/confidence/scores/translation/analysis)",
+    )
+    want: Dict[str, Any] = Field(
+        ...,
+        description="What the user wants instead (corrected label/translation/analysis/etc.)",
+    )
     notes: Optional[str] = Field(None, description="Free-form user notes")
     tags: Optional[List[str]] = Field(default_factory=list)
 

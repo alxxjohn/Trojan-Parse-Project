@@ -19,9 +19,13 @@ os.makedirs(TRAIN_DIR, exist_ok=True)
 
 
 class TrainRequest(BaseModel):
-    model_id: str = Field(..., description="Target model to train (e.g. latin_model:1.0.0)")
+    model_id: str = Field(
+        ..., description="Target model to train (e.g. latin_model:1.0.0)"
+    )
     preset_name: Optional[str] = None
-    strategy: Optional[str] = Field(default="rag_refresh", description="rag_refresh|lora|prompt_update")
+    strategy: Optional[str] = Field(
+        default="rag_refresh", description="rag_refresh|lora|prompt_update"
+    )
     tags: Optional[List[str]] = None
     limit: Optional[int] = None
 
@@ -37,7 +41,9 @@ class TrainJob(BaseModel):
     stats: Dict[str, Any]
 
 
-def _load_feedback_records(tags: Optional[List[str]], limit: Optional[int]) -> List[Dict[str, Any]]:
+def _load_feedback_records(
+    tags: Optional[List[str]], limit: Optional[int]
+) -> List[Dict[str, Any]]:
     paths = sorted(glob.glob(os.path.join(FEEDBACK_DIR, "*.jsonl")))
     rows: List[Dict[str, Any]] = []
     for p in paths:
@@ -94,7 +100,12 @@ async def trigger_train(req: TrainRequest) -> Dict[str, Any]:
     with open(dataset_path, "w", encoding="utf-8") as f:
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
-    return {"ok": True, "job_id": job_id, "status": "queued", "feedback_count": len(rows)}
+    return {
+        "ok": True,
+        "job_id": job_id,
+        "status": "queued",
+        "feedback_count": len(rows),
+    }
 
 
 @router.get("/train")
