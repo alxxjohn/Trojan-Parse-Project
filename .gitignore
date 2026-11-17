@@ -207,3 +207,19 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+src/SentimentAnalysisLatin/data/raw/
+src/SentimentAnalysisLatin/data/labeled/
+src/SentimentAnalysisLatin/data/evaluation/
+src/SentimentAnalysisLatin/models/
+
+# Model files and checkpoints
+checkpoint-*/
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+
+# Training logs
+runs/
+wandb/
